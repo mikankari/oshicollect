@@ -27,7 +27,7 @@ func main() {
 		log.Fatalln(err);
 	}
 	search, _, err := client.Search.Tweets(&twitter.SearchTweetParams{
-		Query: `("みずえな" OR mzen) filter:links -filter:replies`,
+		Query: `("みずえな" OR #みずえな OR mzen) filter:links -filter:replies`,
 		ResultType: "recent",
 		Count: 100,
 		SinceID: lastSinceID,
@@ -46,9 +46,25 @@ func main() {
 		if item.RetweetedStatus != nil {
 			continue
 		}
-		// 本文で一致する。mzen はあいまいさ回避のため仮にふぁぼ数も見る
-		if ! (strings.Contains(item.Text, "みずえな") || (strings.Contains(item.Text, "mzen") && item.FavoriteCount >= 10)) {
-			continue
+		// 本文に一致する
+		if ! strings.Contains(item.Text, "みずえな") {
+			if ! strings.Contains(strings.ToLower(item.Text), "mzen") {
+				continue
+			}
+			// mzen はあいまいさ回避のため、ふぁぼ数または公式をフォローするか見る
+			if item.FavoriteCount < 10 {
+				result, _, err := client.Friendships.Show(&twitter.FriendshipShowParams{
+					SourceID: item.User.ID,
+					TargetID: 1158668053183266816,
+				})
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				if ! result.Source.Following {
+					continue
+				}
+			}
 		}
 
 		log.Println(item.Text)
