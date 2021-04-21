@@ -27,7 +27,7 @@ func main() {
 		log.Fatalln(err);
 	}
 	search, _, err := client.Search.Tweets(&twitter.SearchTweetParams{
-		Query: `("みずえな" OR #みずえな OR mzen) filter:links -filter:replies`,
+		Query: `("みずえな" OR #みずえな OR mzen) filter:links -filter:replies -filter:retweets`,
 		ResultType: "recent",
 		Count: 100,
 		SinceID: lastSinceID,
@@ -42,10 +42,6 @@ func main() {
 	for i := len(search.Statuses) - 1; i >= 0; i-- {
 		item := search.Statuses[i]
 
-		// RT は除く
-		if item.RetweetedStatus != nil {
-			continue
-		}
 		// 本文に一致する
 		if ! strings.Contains(item.Text, "みずえな") {
 			if ! strings.Contains(strings.ToLower(item.Text), "mzen") {
