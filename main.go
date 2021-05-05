@@ -42,6 +42,10 @@ func main() {
 	for i := len(search.Statuses) - 1; i >= 0; i-- {
 		item := search.Statuses[i]
 
+		// 引用 RT を除く
+		if item.QuotedStatus != nil {
+			continue
+		}
 		// 本文に一致する
 		if ! (strings.Contains(item.Text, "みずえな") || strings.Contains(item.Text, "mizuena") || strings.Contains(item.Text, "미즈에나")) {
 			if ! strings.Contains(strings.ToLower(item.Text), "mzen") {
