@@ -31,6 +31,7 @@ func main() {
 		ResultType: "recent",
 		Count: 100,
 		SinceID: lastSinceID,
+		TweetMode: "extended",
 	})
 	if err != nil {
 		log.Fatalln(err);
@@ -46,9 +47,10 @@ func main() {
 		if item.QuotedStatus != nil {
 			continue
 		}
+
 		// 本文に一致する
-		if ! (strings.Contains(item.Text, "みずえな") || strings.Contains(strings.ToLower(item.Text), "mizuena") || strings.Contains(item.Text, "미즈에나")) {
-			if ! strings.Contains(strings.ToLower(item.Text), "mzen") {
+		if ! (strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나")) {
+			if ! strings.Contains(strings.ToLower(item.FullText), "mzen") {
 				continue
 			}
 			// mzen はあいまいさ回避のため、ふぁぼ数または公式をフォローするか見る
@@ -67,7 +69,7 @@ func main() {
 			}
 		}
 
-		log.Println(item.Text)
+		log.Println(item.FullText)
 		log.Println("https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
 
 		_, _, err = client.Statuses.Retweet(item.ID, nil)
