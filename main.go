@@ -47,7 +47,7 @@ func main() {
 			continue
 		}
 		// 本文に一致する
-		if ! (strings.Contains(item.Text, "みずえな") || strings.Contains(item.Text, "mizuena") || strings.Contains(item.Text, "미즈에나")) {
+		if ! (strings.Contains(item.Text, "みずえな") || strings.Contains(strings.ToLower(item.Text), "mizuena") || strings.Contains(item.Text, "미즈에나")) {
 			if ! strings.Contains(strings.ToLower(item.Text), "mzen") {
 				continue
 			}
