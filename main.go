@@ -27,7 +27,7 @@ func main() {
 		log.Fatalln(err);
 	}
 	search, _, err := client.Search.Tweets(&twitter.SearchTweetParams{
-		Query: `("みずえな" OR #みずえな OR mzen OR mizuena OR "미즈 에나" OR #みずえな25時ワンドロワンライ) filter:links -filter:replies -filter:retweets`,
+		Query: `("みずえ" OR "みず え" OR "ずえな" OR "ず えな" OR #みずえな OR mzen OR mizuena OR "미즈 에나" OR #みずえな25時ワンドロワンライ) filter:links -filter:replies -filter:retweets`,
 		ResultType: "recent",
 		Count: 100,
 		SinceID: lastSinceID,
