@@ -36,12 +36,13 @@ func main() {
 	if err != nil {
 		log.Fatalln(err);
 	}
-	if len(search.Statuses) == 100 {
-		log.Println("may overflow")
-	}
+	log.Printf("%d / %d", len(search.Statuses), search.Metadata.Count)
 
 	for i := len(search.Statuses) - 1; i >= 0; i-- {
 		item := search.Statuses[i]
+
+		log.Println(strings.ReplaceAll(item.FullText, "\n", " "))
+		log.Println("https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
 
 		// 引用 RT を除く
 		if item.QuotedStatus != nil {
@@ -69,8 +70,7 @@ func main() {
 			}
 		}
 
-		log.Println(item.FullText)
-		log.Println("https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
+		log.Println("Retweeting")
 
 		_, _, err = client.Statuses.Retweet(item.ID, nil)
 		if err != nil {
