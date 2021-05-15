@@ -27,7 +27,17 @@ func main() {
 		log.Fatalln(err);
 	}
 	search, _, err := client.Search.Tweets(&twitter.SearchTweetParams{
-		Query: `("みずえ" OR "みず え" OR "ずえな" OR "ず えな" OR #みずえな OR mzen OR mizuena OR "미즈 에나" OR #みずえな25時ワンドロワンライ) filter:links -filter:replies -filter:retweets`,
+		Query: `(` + strings.Join([]string{
+			`"みずえ"`,
+			`"みず え"`,
+			`"ずえな"`,
+			`"ず えな"`,
+			`#みずえな`,
+			`mzen`,
+			`mizuena`,
+			`"미즈 에나"`,
+			`#みずえな25時ワンドロワンライ`,
+		}, " OR ") + `) filter:links -filter:replies -filter:retweets`,
 		ResultType: "recent",
 		Count: 100,
 		SinceID: lastSinceID,
@@ -44,30 +54,35 @@ func main() {
 		log.Println(strings.ReplaceAll(item.FullText, "\n", " "))
 		log.Println("https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
 
-		// 引用 RT を除く
-		if item.QuotedStatus != nil {
-			continue
-		}
-
-		// 本文に一致する
-		if ! (strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나")) {
-			if ! strings.Contains(strings.ToLower(item.FullText), "mzen") {
-				continue
+		if ! func (item twitter.Tweet) (bool) {
+			// 引用 RT を除く
+			if item.QuotedStatus != nil {
+				return false
 			}
-			// mzen はあいまいさ回避のため、ふぁぼ数または公式をフォローするか見る
-			if item.FavoriteCount < 10 {
+
+			// 本文に一致する
+			if strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나") {
+				return true
+			}
+			// mzen はあいまいさ回避のため、加えてふぁぼ数または公式をフォローするか見る
+			if strings.Contains(strings.ToLower(item.FullText), "mzen") {
+				if item.FavoriteCount >= 10 {
+					return true
+				}
 				result, _, err := client.Friendships.Show(&twitter.FriendshipShowParams{
 					SourceID: item.User.ID,
 					TargetID: 1158668053183266816,
 				})
 				if err != nil {
 					log.Println(err)
-					continue
-				}
-				if ! result.Source.Following {
-					continue
+				} else if result.Source.Following {
+					return true
 				}
 			}
+
+			return false
+		}(item) {
+			continue
 		}
 
 		log.Println("Retweeting")
