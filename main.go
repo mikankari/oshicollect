@@ -60,6 +60,11 @@ func main() {
 				return false
 			}
 
+			// ふぁぼがないのを除く
+			if item.FavoriteCount < 1 {
+				return false
+			}
+
 			// 本文に一致する
 			if strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나") {
 				return true
