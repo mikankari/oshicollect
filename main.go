@@ -36,6 +36,7 @@ func main() {
 			`mzen`,
 			`mizuena`,
 			`"미즈 에나"`,
+			`(瑞希 絵名 -交換)`,
 			`#みずえな25時ワンドロワンライ`,
 		}, " OR ") + `) filter:links -filter:replies -filter:retweets`,
 		ResultType: "recent",
@@ -67,6 +68,9 @@ func main() {
 
 			// 本文に一致する
 			if strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나") {
+				return true
+			}
+			if strings.Contains(item.FullText, "瑞希") && strings.Contains(item.FullText, "絵名") {
 				return true
 			}
 			// mzen はあいまいさ回避のため、加えてふぁぼ数または公式をフォローするか見る
