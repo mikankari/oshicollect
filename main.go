@@ -61,31 +61,54 @@ func main() {
 				return false
 			}
 
-			// ふぁぼがないのを除く
-			if item.FavoriteCount < 1 {
+			// 次のいずれかあれば、ふぁぼ数がなくても拾う
+			hasContents := func (item twitter.Tweet) (bool) {
+				for _, hashtag := range item.Entities.Hashtags {
+					// タグ「みずえな」前方一致
+					if strings.HasPrefix(hashtag.Text, "みずえな") {
+						return true
+					}
+					// タグ「prsk_」前方一致
+					if strings.HasPrefix(strings.ToLower(hashtag.Text), "prsk_") {
+						return true
+					}
+					// タグ「1日1ニーゴ」
+					if hashtag.Text == "1日1ニーゴ" {
+						return true
+					}
+				}
+				for _, url := range item.Entities.Urls {
+					// リンク pixiv.net
+					if strings.Contains(url.ExpandedURL, "//pixiv.net/") {
+						return true
+					}
+				}
 				return false
-			}
+			}(item)
 
 			// 本文に一致する
+			// 「みずえな」とその他言語表記は 2 以上ふぁぼをもらえているか
 			if strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나") {
-				return true
+				return hasContents || item.FavoriteCount >= 2
 			}
+			// 「瑞希」と「絵名」はグッズ情報などを避けるため、10 以上ふぁぼをもらえているか
 			if strings.Contains(item.FullText, "瑞希") && strings.Contains(item.FullText, "絵名") {
-				return true
+				return hasContents || item.FavoriteCount >= 10
 			}
-			// mzen はあいまいさ回避のため、加えてふぁぼ数または公式をフォローするか見る
+			// 「mzen」は 2 以上ふぁぼもらえているか、加えてあいまいさ回避のため公式をフォローするか見る
 			if strings.Contains(strings.ToLower(item.FullText), "mzen") {
-				if item.FavoriteCount >= 10 {
+				if hasContents || item.FavoriteCount >= 10 {
 					return true
-				}
-				result, _, err := client.Friendships.Show(&twitter.FriendshipShowParams{
-					SourceID: item.User.ID,
-					TargetID: 1158668053183266816,
-				})
-				if err != nil {
-					log.Println(err)
-				} else if result.Source.Following {
-					return true
+				} else if item.FavoriteCount >= 2 {
+					result, _, err := client.Friendships.Show(&twitter.FriendshipShowParams{
+						SourceID: item.User.ID,
+						TargetID: 1158668053183266816,
+					})
+					if err != nil {
+						log.Println(err)
+					} else if result.Source.Following {
+						return true
+					}
 				}
 			}
 
