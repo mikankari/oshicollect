@@ -120,6 +120,11 @@ func main() {
 			continue
 		}
 
+		if os.Getenv("APP_ENV") != "production" {
+			fmt.Println("  -> Retweeting")
+			continue
+		}
+
 		_, _, err = client.Statuses.Retweet(item.ID, nil)
 		if err != nil {
 			fmt.Println(err)
