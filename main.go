@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -24,7 +24,8 @@ func main() {
 		}
 	}
 	if err != nil {
-		log.Fatalln(err);
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 	search, _, err := client.Search.Tweets(&twitter.SearchTweetParams{
 		Query: `(` + strings.Join([]string{
@@ -45,15 +46,16 @@ func main() {
 		TweetMode: "extended",
 	})
 	if err != nil {
-		log.Fatalln(err);
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	log.Printf("%d / %d", len(search.Statuses), search.Metadata.Count)
+	fmt.Printf("%d / %d\n", len(search.Statuses), search.Metadata.Count)
 
 	for i := len(search.Statuses) - 1; i >= 0; i-- {
 		item := search.Statuses[i]
 
-		log.Println(strings.ReplaceAll(item.FullText, "\n", " "))
-		log.Println("https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
+		fmt.Println(strings.ReplaceAll(item.FullText, "\n", " "))
+		fmt.Println("https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
 
 		if ! func (item twitter.Tweet) (bool) {
 			// 引用 RT を除く
@@ -105,7 +107,7 @@ func main() {
 						TargetID: 1158668053183266816,
 					})
 					if err != nil {
-						log.Println(err)
+						fmt.Println(err)
 					} else if result.Source.Following {
 						return true
 					}
@@ -117,13 +119,13 @@ func main() {
 			continue
 		}
 
-		log.Println("Retweeting")
+		fmt.Println("Retweeting")
 
 		_, _, err = client.Statuses.Retweet(item.ID, nil)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		} else {
-			log.Println("Retweeted")
+			fmt.Println("Retweeted")
 		}
 
 		time.Sleep(1 * time.Second)
