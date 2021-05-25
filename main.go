@@ -55,7 +55,7 @@ func main() {
 		item := search.Statuses[i]
 
 		fmt.Println(strings.ReplaceAll(item.FullText, "\n", " "))
-		fmt.Println("https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
+		fmt.Printf("%d likes from %s\n", item.FavoriteCount, "https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
 
 		if ! func (item twitter.Tweet) (bool) {
 			// 引用 RT を除く
