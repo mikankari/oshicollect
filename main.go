@@ -116,16 +116,15 @@ func main() {
 
 			return false
 		}(item) {
+			fmt.Println("  -> Dont retweet")
 			continue
 		}
-
-		fmt.Println("Retweeting")
 
 		_, _, err = client.Statuses.Retweet(item.ID, nil)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Println("Retweeted")
+			fmt.Println("  -> Retweeted")
 		}
 
 		time.Sleep(1 * time.Second)
