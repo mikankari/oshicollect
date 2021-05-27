@@ -81,9 +81,13 @@ func main() {
 				}
 				for _, url := range item.Entities.Urls {
 					// リンク pixiv.net
-					if strings.Contains(url.ExpandedURL, "//pixiv.net/") {
+					if strings.Contains(url.ExpandedURL, "//www.pixiv.net/") {
 						return true
 					}
+				}
+				// 説明が 15 文字程度以内
+				if strings.Count(item.FullText, "") <= 40 {
+					return true
 				}
 				return false
 			}(item)
@@ -93,9 +97,9 @@ func main() {
 			if strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나") {
 				return hasContents || item.FavoriteCount >= 2
 			}
-			// 「瑞希」と「絵名」はグッズ情報などを避けるため、10 以上ふぁぼをもらえているか
+			// 「瑞希」と「絵名」はグッズ情報などを避けるため、20 以上ふぁぼをもらえているか
 			if strings.Contains(item.FullText, "瑞希") && strings.Contains(item.FullText, "絵名") {
-				return hasContents || item.FavoriteCount >= 10
+				return hasContents || item.FavoriteCount >= 20
 			}
 			// 「mzen」は 2 以上ふぁぼもらえているか、加えてあいまいさ回避のため公式をフォローするか見る
 			if strings.Contains(strings.ToLower(item.FullText), "mzen") {
