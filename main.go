@@ -39,6 +39,7 @@ func main() {
 			`"미즈 에나"`,
 			`(瑞希 絵名 -交換)`,
 			`#みずえな25時ワンドロワンライ`,
+			`#みずえなで50音`,
 		}, " OR ") + `) filter:links -filter:replies -filter:retweets`,
 		ResultType: "recent",
 		Count: 100,
