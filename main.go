@@ -58,9 +58,20 @@ func main() {
 		fmt.Printf("%d likes from %s\n", item.FavoriteCount, "https://twitter.com/" + item.User.ScreenName + "/status/" + item.IDStr)
 
 		if ! func (item twitter.Tweet) (bool) {
-			// 引用 RT を除く
-			if item.QuotedStatus != nil {
-				return false
+			// テキストのみの引用 RT は引用元で見る。引用元を最近拾ったときは拾わない
+			if item.QuotedStatus != nil && len(item.Entities.Urls) == 1 && len(item.Entities.Media) == 0 {
+				item := item.QuotedStatus
+
+				var retweeted bool = false
+				for _, laterItem := range laterTweets {
+					if laterItem.RetweetedStatus != nil && laterItem.RetweetedStatus.ID == item.ID {
+						retweeted = true
+						break
+					}
+				}
+				if retweeted || len(item.Entities.Urls) == 0 && len(item.Entities.Media) == 0 {
+					return false
+				}
 			}
 
 			// 次のいずれかあれば、ふぁぼ数がなくても拾う
@@ -129,7 +140,7 @@ func main() {
 			continue
 		}
 
-		_, _, err = client.Statuses.Retweet(item.ID, nil)
+		_, _, err = client.Statuses.Retweet(search.Statuses[i].ID, nil)
 		if err != nil {
 			fmt.Println(err)
 		} else {
