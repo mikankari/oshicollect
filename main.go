@@ -105,8 +105,11 @@ func main() {
 			}(item)
 
 			// 本文に一致する
-			// 「みずえな」とその他言語表記は 2 以上ふぁぼをもらえているか
+			// 「みずえな」とその他言語表記、「みずえにゃ」は 2 以上ふぁぼをもらえているか
 			if strings.Contains(item.FullText, "みずえな") || strings.Contains(strings.ToLower(item.FullText), "mizuena") || strings.Contains(item.FullText, "미즈에나") {
+				return hasContents || item.FavoriteCount >= 2
+			}
+			if strings.Contains(item.FullText, "みずえにゃ") {
 				return hasContents || item.FavoriteCount >= 2
 			}
 			// 「瑞希」と「絵名」はグッズ情報などを避けるため、20 以上ふぁぼをもらえているか
