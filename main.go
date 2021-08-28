@@ -73,6 +73,10 @@ func main() {
 						retweeted = true
 						break
 					}
+					if retweetedItem.QuotedStatus != nil && retweetedItem.QuotedStatus.ID == item.ID {
+						retweeted = true
+						break
+					}
 				}
 				if retweeted || len(item.Entities.Urls) == 0 && len(item.Entities.Media) == 0 {
 					return false
