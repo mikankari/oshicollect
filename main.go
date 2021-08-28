@@ -16,12 +16,16 @@ func main() {
 
 	// 前回実行時から今までのツイートをざっくり得る
 	var lastSinceID int64 = 0
+	var retweetedTweets = []*twitter.Tweet{}
 	laterTweets, _, err := client.Timelines.UserTimeline(nil)
 	for _, item := range laterTweets {
-		if item.RetweetedStatus != nil {
-			lastSinceID = item.RetweetedStatus.ID
-			break
+		if item.RetweetedStatus == nil {
+			continue
 		}
+		if lastSinceID == 0 {
+			lastSinceID = item.RetweetedStatus.ID
+		}
+		retweetedTweets = append(retweetedTweets, item.RetweetedStatus)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -64,8 +68,8 @@ func main() {
 				item := item.QuotedStatus
 
 				var retweeted bool = false
-				for _, laterItem := range laterTweets {
-					if laterItem.RetweetedStatus != nil && laterItem.RetweetedStatus.ID == item.ID {
+				for _, retweetedItem := range retweetedTweets {
+					if retweetedItem.ID == item.ID {
 						retweeted = true
 						break
 					}
@@ -138,6 +142,8 @@ func main() {
 			fmt.Println("  -> Dont retweet")
 			continue
 		}
+
+		retweetedTweets = append([]*twitter.Tweet{ &search.Statuses[i] }, retweetedTweets...)
 
 		if os.Getenv("APP_ENV") != "production" {
 			fmt.Println("  -> Retweeting")
